@@ -18,7 +18,7 @@ void cleanup_and_exit(int sig) {
     mq_close(server_mq);
     mq_unlink(SERVER_QUEUE);
   }
-  printf("\nServer stopping.\n");
+  printf("\nNo more server.\n");
   exit(0);
 }
 
@@ -30,7 +30,7 @@ void *procesar_request(void *arg) {
 
   switch (req->opcode) {
   case OP_INIT:
-    status = 0;
+    status = 0; // Trivial
     break;
 
   case OP_DESTROY:
@@ -82,11 +82,10 @@ void *procesar_request(void *arg) {
 }
 
 int main(void) {
-  // Register signal handlers for graceful shutdown (CTRL+C)
   signal(SIGINT, cleanup_and_exit);
   signal(SIGTERM, cleanup_and_exit);
 
-  // Initial clear up just in case an old queue remained
+  // Clear up
   mq_unlink(SERVER_QUEUE);
 
   struct mq_attr attr;

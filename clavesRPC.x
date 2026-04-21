@@ -74,14 +74,14 @@ struct exist_args {
 };
 
 struct exist_res {
-    int status;   /* 1=existe, 0=no existe, -1=error */
+    int status;
 };
 
-/* ── Programa RPC ── */
+/* Programa RPC - Serializer y conexión*/
 
 program CLAVES_PROG {
     version CLAVES_VERS {
-        destroy_res  RPC_DESTROY(void)          = 1;
+        destroy_res  RPC_DESTROY(void)           = 1;
         set_res      RPC_SET(set_args)           = 2;
         get_res      RPC_GET(get_args)           = 3;
         modify_res   RPC_MODIFY(modify_args)     = 4;

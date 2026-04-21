@@ -6,13 +6,13 @@ RPC_LIBS = -ltirpc -lpthread
 # Archivos generados por rpcgen a partir de clavesRPC.x
 RPC_GEN = clavesRPC.h clavesRPC_xdr.c clavesRPC_clnt.c clavesRPC_svc.c
 
-all: libclaves.so libproxyclaves_sockets.so libproxyclaves_mq.so libproxyclaves_rpc.so \
-     servidor_sockets servidor_mq servidor_rpc \
-     cliente_sockets cliente_queue cliente_mono cliente_rpc
+all: libclaves.so libproxyclaves_sock.so libproxyclaves_mq.so libproxyclaves_rpc.so \
+     servidor_sock servidor_mq servidor_rpc \
+     cliente_sock cliente_queue cliente_mono cliente_rpc
 
 # Targets por variante
 mq:      libclaves.so libproxyclaves_mq.so servidor_mq cliente_queue
-sockets: libclaves.so libproxyclaves_sockets.so servidor_sockets cliente_sockets
+sockets: libclaves.so libproxyclaves_sock.so servidor_sock cliente_sock
 rpc:     libclaves.so libproxyclaves_rpc.so servidor_rpc cliente_rpc
 
 .PHONY: all mq sockets rpc clean
@@ -22,24 +22,24 @@ libclaves.so: claves.c claves.h
 	$(CC) $(CFLAGS) -fPIC -shared -o libclaves.so claves.c
 
 # Librería proxy por sockets (P2)
-libproxyclaves_sockets.so: proxy-sock.c claves.h common-mq.h
-	$(CC) $(CFLAGS) -fPIC -shared -o libproxyclaves_sockets.so proxy-sock.c
+libproxyclaves_sock.so: proxy-sock.c claves.h common-mq.h
+	$(CC) $(CFLAGS) -fPIC -shared -o libproxyclaves_sock.so proxy-sock.c
 
 # Librería proxy por colas (P1)
 libproxyclaves_mq.so: proxy-mq.c claves.h common-mq.h
 	$(CC) $(CFLAGS) -fPIC -shared -o libproxyclaves_mq.so proxy-mq.c
 
 # Servidor por sockets (P2)
-servidor_sockets: servidor-sock.c claves.h common-mq.h libclaves.so
-	$(CC) $(CFLAGS) -o servidor_sockets servidor-sock.c $(LDFLAGS) -lclaves
+servidor_sock: servidor-sock.c claves.h common-mq.h libclaves.so
+	$(CC) $(CFLAGS) -o servidor_sock servidor-sock.c $(LDFLAGS) -lclaves
 
 # Servidor de colas (P1)
 servidor_mq: servidor-mq.c claves.h common-mq.h libclaves.so
 	$(CC) $(CFLAGS) -o servidor_mq servidor-mq.c $(LDFLAGS) -lclaves
 
 # Cliente principal (P2 - Enlazando con proxy socket)
-cliente_sockets: app-cliente.c claves.h libproxyclaves_sockets.so
-	$(CC) $(CFLAGS) -o cliente_sockets app-cliente.c $(LDFLAGS) -lproxyclaves_sockets
+cliente_sock: app-cliente.c claves.h libproxyclaves_sock.so
+	$(CC) $(CFLAGS) -o cliente_sock app-cliente.c $(LDFLAGS) -lproxyclaves_sock
 
 # Cliente con colas (P1 - Enlazando con proxy colas)
 cliente_queue: app-cliente.c claves.h libproxyclaves_mq.so
@@ -70,7 +70,7 @@ cliente_rpc: app-cliente.c claves.h libproxyclaves_rpc.so
 	$(CC) $(CFLAGS) -o cliente_rpc app-cliente.c $(LDFLAGS) -lproxyclaves_rpc $(RPC_LIBS)
 
 clean:
-	rm -f libclaves.so libproxyclaves_sockets.so libproxyclaves_mq.so libproxyclaves_rpc.so \
-	      servidor_sockets servidor_mq servidor_rpc \
-	      cliente_sockets cliente_queue cliente_mono cliente_rpc \
+	rm -f libclaves.so libproxyclaves_sock.so libproxyclaves_mq.so libproxyclaves_rpc.so \
+	      servidor_sock servidor_mq servidor_rpc \
+	      cliente_sock cliente_queue cliente_mono cliente_rpc \
 	      $(RPC_GEN) clavesRPC_server.c clavesRPC_client.c
